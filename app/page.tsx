@@ -20,7 +20,6 @@ declare global {
 export default function HomePage() {
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [loading, setLoading] = useState(false);
-  const [hasVoted, setHasVoted] = useState(false);
 
   const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
   const [signer, setSigner] = useState<ethers.JsonRpcSigner | null>(null);
