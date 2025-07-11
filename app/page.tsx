@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { getVotingContract } from "../lib/contract";
 import { ProposalCard } from "./components/ProposalCard";
+import type { MetaMaskInpageProvider } from "@metamask/providers";
 
 interface Proposal {
   id: number;
@@ -13,9 +14,16 @@ interface Proposal {
 
 declare global {
   interface Window {
-    ethereum?: any;
+    ethereum?: MetaMaskInpageProvider;
   }
 }
+
+interface OnChainProposal {
+  id: number;
+  title: string;
+  voteCount: string; 
+}
+
 
 export default function HomePage() {
   const [proposals, setProposals] = useState<Proposal[]>([]);
@@ -42,7 +50,7 @@ export default function HomePage() {
     setLoading(true);
     const contract = getVotingContract(provider);
     const onChainProposals = await contract.getProposals();
-    const formatted = onChainProposals.map((p: any) => ({
+    const formatted = onChainProposals.map((p: OnChainProposal) => ({
       id: p.id,
       title: p.title,
       voteCount: Number(p.voteCount),
@@ -59,8 +67,12 @@ export default function HomePage() {
       await tx.wait();
       alert("Vote successful!");
       fetchProposals(provider!);
-    } catch (err: any) {
-      alert(err.reason || err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        alert(err.message);
+      } else {
+        alert("An unknown error occurred.");
+      }
     }
   };
 
